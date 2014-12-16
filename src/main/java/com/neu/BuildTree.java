@@ -1,3 +1,5 @@
+package com.neu;
+
 import spatialindex.rtree.RTree;
 import spatialindex.spatialindex.*;
 import spatialindex.storagemanager.*;
@@ -14,7 +16,7 @@ import java.util.StringTokenizer;
 public class BuildTree
 {
     public static final int BUFFER_SIZE = 100;
-    public static final String DATEFORMAT_STRING = "yyyy／MM／dd hh:mm:ss";// the "/" is chinese!
+    public static final String DATEFORMAT_STRING = "yyyy/MM/dd hh:mm:ss";
 
     public static void buildTree(String fileName) throws IOException
     {
@@ -64,6 +66,7 @@ public class BuildTree
 
 
         int readNumber = 0;
+        String data = "0";
 
         int id;
         double lng, lat;
@@ -103,9 +106,8 @@ public class BuildTree
 
             Point point = new Point(pointData);
 
-            String data = String.valueOf(readNumber);
             tree.insertData(data.getBytes(), point, id);
-
+            data = String.valueOf(readNumber);
 //            System.out.println(index);
             System.out.println(readNumber);
 //            System.out.println(line);
@@ -125,12 +127,12 @@ public class BuildTree
     }
 
 
-    public static ISpatialIndex getTree()
+    public static ISpatialIndex getTree(String filename)
     {
         // Create a disk based storage manager.
         PropertySet ps1 = new PropertySet();
 
-        ps1.setProperty("FileName", "tree");
+        ps1.setProperty("FileName", filename);
         // .idx and .dat extensions will be added.
 
         IStorageManager diskfile1 = null;
@@ -221,6 +223,20 @@ public class BuildTree
     }
 
 
+    public static String getData(String indexFilename,String dataFilename, Point point)
+    {
+
+            ISpatialIndex tree = BuildTree.getTree(indexFilename);
+
+
+            MyVisitor vis = new MyVisitor(dataFilename);
+            tree.intersectionQuery(point,vis);
+
+            return vis.getReadData();
+
+    }
+
+
 
     public static void main(String[] args)
     {
@@ -228,7 +244,7 @@ public class BuildTree
         {
             BuildTree.buildTree("data.csv");
 
-            ISpatialIndex tree = BuildTree.getTree();
+            ISpatialIndex tree = BuildTree.getTree("tree");
             double[] data1 = {1417401382,71.12293,41.96888};
             double[] data2 = {1417401382,70.18544,41.74363};
             double[] data3 = {70.64253,41.26596,1417225399};
@@ -239,7 +255,7 @@ public class BuildTree
             Point point3 = new Point(data3);
             Point point4 = new Point(data4);
 
-            MyVisitor vis = new MyVisitor();
+            MyVisitor vis = new MyVisitor("data.csv");
             tree.intersectionQuery(point1,vis);
             tree.intersectionQuery(point2,vis);
             tree.intersectionQuery(point3,vis);
@@ -254,7 +270,19 @@ public class BuildTree
 
 class MyVisitor implements IVisitor
 {
-    public static final String FILENAME = "data.csv";
+    private String filename;
+    private String readData;
+
+    public MyVisitor(String filename)
+    {
+        this.filename = filename;
+    }
+
+    public String getReadData()
+    {
+        return this.readData;
+    }
+    //public static final String FILENAME = "data.csv";
 
     public void visitNode(final INode n) {}
 
@@ -272,11 +300,12 @@ class MyVisitor implements IVisitor
             try
             {
                 System.out.println("readFileByRandomAccess:");
-                randomFile = new RandomAccessFile(FILENAME, "r");
+                randomFile = new RandomAccessFile(filename, "r");
 
                 randomFile.seek(position);
 
-                System.out.println(BuildTree.readLine(randomFile));
+                readData = BuildTree.readLine(randomFile);
+                System.out.println(readData);
 
             } catch (IOException e)
             {

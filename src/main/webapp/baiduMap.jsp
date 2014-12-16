@@ -61,12 +61,12 @@
     //创建地图函数：
     function createMap() {
         var map = new BMap.Map("dituContent");//在百度地图容器中创建一个地图
-        var point = new BMap.Point(109.854086, 29.937542);//定义一个中心点坐标
+        var point = new BMap.Point(71.12293, 41.96888);//定义一个中心点坐标
         map.centerAndZoom(point, 5);//设定地图的中心点和坐标并将地图显示在地图容器中
 
         function showInfo(e) {
             alert(e.point.lng + ", " + e.point.lat);
-            map.clearOverlays();
+            //map.clearOverlays();
             map.addOverlay(new BMap.Marker(new BMap.Point(e.point.lng, e.point.lat)));
         }
 
@@ -96,6 +96,8 @@
         map.addControl(ctrl_sca);
     }
 
+
+
     //标注点数组
     var markerArr = [
         {title: "1", content: "第1点", point: "119.972599|38.943134", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
@@ -110,60 +112,91 @@
     ];
     //创建marker
     function addMarker() {
-        for (var i = 0; i < markerArr.length; i++) {
-            var json = markerArr[i];
-            var p0 = json.point.split("|")[0];
-            var p1 = json.point.split("|")[1];
-            var point = new BMap.Point(p0, p1);
-            var iconImg = createIcon(json.icon);
-            var marker = new BMap.Marker(point, {icon: iconImg});
-            var iw = createInfoWindow(i);
-            var label = new BMap.Label(json.title, {"offset": new BMap.Size(json.icon.lb - json.icon.x + 10, -20)});
-            marker.setLabel(label);
-            map.addOverlay(marker);
-            label.setStyle({
-                borderColor: "#808080",
-                color: "#333",
-                cursor: "pointer"
-            });
+        var marker = new BMap.Marker(new BMap.Point(71.12293, 41.96888));
+        marker.addEventListener("click", function (ee)
+        {
+            $("#myLocation").html("我的位置：" + "(" + ee.point.lng + "," + ee.point.lat + ")");
+            $('#myContent').append("<p style='color:#dd0000'>" + ee.point.lng + "/" + ee.point.lat + "</p>");
+            doRequestUsingGET(71.12293, 41.96888);
+        });
+        map.addOverlay(marker);
+        marker = new BMap.Marker(new BMap.Point(70.18544, 41.74363));
+        marker.addEventListener("click", function (ee)
+        {
+            $("#myLocation").html("我的位置：" + "(" + ee.point.lng + "," + ee.point.lat + ")");
+            $('#myContent').append("<p style='color:#dd0000'>" + ee.point.lng + "/" + ee.point.lat + "</p>");
+            doRequestUsingGET(70.18544, 41.74363);
+        });
+        map.addOverlay(marker);
+        marker = new BMap.Marker(new BMap.Point(71.95589, 41.82858));
+        marker.addEventListener("click", function (ee)
+        {
+            alert(ee.point.lng + "," + ee.point.lat);
+            doRequestUsingGET(71.95589, 41.82858);
+        });
+        map.addOverlay(marker);
+        marker = new BMap.Marker(new BMap.Point(71.89159, 40.68332));
+        marker.addEventListener("click", function (ee)
+        {
+            alert(ee.point.lng + "," + ee.point.lat);
+            doRequestUsingGET(71.89159, 40.68332);
+        });
+        map.addOverlay(marker);
 
-            (function () {
-                var index = i;
-                var _iw = createInfoWindow(index);
-                var _marker = marker;
-                _marker.addEventListener("click", function () {
-                    this.openInfoWindow(_iw);
-                });
-                _marker.addEventListener("click", function () {
-                    showMyLocation(i);
-                });
-                _iw.addEventListener("open", function () {
-                    _marker.getLabel().hide();
-                });
-                _iw.addEventListener("close", function () {
-                    _marker.getLabel().show();
-                });
-                label.addEventListener("click", function () {
-                    _marker.openInfoWindow(_iw);
-                });
-                if (!!json.isOpen) {
-                    label.hide();
-                    _marker.openInfoWindow(_iw);
-                }
-            })();
-        }
+//        for (var i = 0; i < markerArr.length; i++) {
+//            var json = markerArr[i];
+//            var p0 = json.point.split("|")[0];
+//            var p1 = json.point.split("|")[1];
+//            var point = new BMap.Point(p0, p1);
+//            var iconImg = createIcon(json.icon);
+//            var marker = new BMap.Marker(point, {icon: iconImg});
+//            var iw = createInfoWindow(i);
+//            var label = new BMap.Label(json.title, {"offset": new BMap.Size(json.icon.lb - json.icon.x + 10, -20)});
+//            marker.setLabel(label);
+//            map.addOverlay(marker);
+//            label.setStyle({
+//                borderColor: "#808080",
+//                color: "#333",
+//                cursor: "pointer"
+//            });
+//
+//            (function () {
+//                var index = i;
+//                var _iw = createInfoWindow(index);
+//                var _marker = marker;
+//                _marker.addEventListener("click", function () {
+//                    this.openInfoWindow(_iw);
+//                });
+//                _marker.addEventListener("click", function () {
+//                    showMyLocation(i);
+//                });
+//                _iw.addEventListener("open", function () {
+//                    _marker.getLabel().hide();
+//                });
+//                _iw.addEventListener("close", function () {
+//                    _marker.getLabel().show();
+//                });
+//                label.addEventListener("click", function () {
+//                    _marker.openInfoWindow(_iw);
+//                });
+//                if (!!json.isOpen) {
+//                    label.hide();
+//                    _marker.openInfoWindow(_iw);
+//                }
+//            })();
+//        }
     }
-    //创建InfoWindow
-    function createInfoWindow(i) {
-        var json = markerArr[i];
-        var iw = new BMap.InfoWindow("<b class='iw_poi_title' title='" + json.title + "'>" + json.title + "</b><div class='iw_poi_content'>" + json.content + "</div>");
-        return iw;
-    }
-    //创建一个Icon
-    function createIcon(json) {
-        var icon = new BMap.Icon("http://app.baidu.com/map/images/us_mk_icon.png", new BMap.Size(json.w, json.h), {imageOffset: new BMap.Size(-json.l, -json.t), infoWindowOffset: new BMap.Size(json.lb + 5, 1), offset: new BMap.Size(json.x, json.h)});
-        return icon;
-    }
+//    //创建InfoWindow
+//    function createInfoWindow(i) {
+//        var json = markerArr[i];
+//        var iw = new BMap.InfoWindow("<b class='iw_poi_title' title='" + json.title + "'>" + json.title + "</b><div class='iw_poi_content'>" + json.content + "</div>");
+//        return iw;
+//    }
+//    //创建一个Icon
+//    function createIcon(json) {
+//        var icon = new BMap.Icon("http://app.baidu.com/map/images/us_mk_icon.png", new BMap.Size(json.w, json.h), {imageOffset: new BMap.Size(-json.l, -json.t), infoWindowOffset: new BMap.Size(json.lb + 5, 1), offset: new BMap.Size(json.x, json.h)});
+//        return icon;
+//    }
     //显示marker位置（经纬度）
     function showMyLocation(i) {
         var json = markerArr[i - 1];
@@ -171,6 +204,43 @@
         var p1 = json.point.split("|")[1];
         $("#myLocation").html("我的位置：" + "(" + p0 + "," + p1 + ")");
         $('#myContent').append("<p style='color:#dd0000'>" + p0 + "/" + p1 + "</p>");
+
+    }
+
+    //创建xmlHttp
+    function createXMLHttpRequest()
+    {
+        if(window.ActiveXObject)
+        {
+            xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        else if(window.XMLHttpRequest)
+        {
+            xmlHttp=new XMLHttpRequest();
+        }
+    }
+
+    //使用get方式发送
+    function doRequestUsingGET(lng,lat)
+    {
+        createXMLHttpRequest();
+        var queryString="./RTreeServlet?";
+        queryString=queryString + "&lng=" + lng + "&lat=" + lat;
+        xmlHttp.onreadystatechange=handleStateChange;
+        xmlHttp.open("GET",queryString,true);
+        xmlHttp.send(null);
+    }
+
+    function handleStateChange()
+    {
+        if(xmlHttp.readyState==4)
+        {
+            if(xmlHttp.status==200)
+            {
+                alert(xmlHttp.responseText);
+                $('#myContent').append("<p style='color:#dd0000'>" + xmlHttp.responseText + "</p>");
+            }
+        }
 
     }
 
