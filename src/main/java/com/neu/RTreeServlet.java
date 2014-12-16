@@ -21,12 +21,11 @@ public class RTreeServlet extends HttpServlet
             double lng = Double.parseDouble(req.getParameter("lng"));
             double lat = Double.parseDouble(req.getParameter("lat"));
             System.out.println(lng + ":" + lat);
-            String realIndexPath = req.getSession().getServletContext().getRealPath("tree");
-            String realDataPath = req.getSession().getServletContext().getRealPath("data.csv");
-            //System.out.println(realIndexPath);
-//            BuildTree.buildTree(realPath);
+            String realIndexPath = req.getSession().getServletContext().getRealPath("tree");//索引文件绝对路径
+            String realDataPath = req.getSession().getServletContext().getRealPath("data.csv");//原始数据绝对路径
+            //将查询结果返回
             PrintWriter out = resp.getWriter();
-            out.print("getData:" + BuildTree.getData(realIndexPath, realDataPath, new Point(new double[]{time, lng, lat})));
+            out.print(BuildTree.getData(realIndexPath, realDataPath, new Point(new double[]{time, lng, lat})));
 
         }catch (NumberFormatException e)
         {

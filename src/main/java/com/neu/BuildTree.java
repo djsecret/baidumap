@@ -4,6 +4,7 @@ import spatialindex.rtree.RTree;
 import spatialindex.spatialindex.*;
 import spatialindex.storagemanager.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
@@ -18,7 +19,7 @@ public class BuildTree
     public static final int BUFFER_SIZE = 100;
     public static final String DATEFORMAT_STRING = "yyyy/MM/dd hh:mm:ss";
 
-    public static void buildTree(String fileName) throws IOException
+    public static void buildTree(String dataFileName,String indexFileName) throws IOException
     {
         /********************init R-tree**********************/
         // Create a disk based storage manager.
@@ -27,7 +28,7 @@ public class BuildTree
         ps.setProperty("Overwrite", true);
         //overwrite the file if it exists.
 
-        ps.setProperty("FileName", "tree");
+        ps.setProperty("FileName", indexFileName);
         // .idx and .dat extensions will be added.
 
         ps.setProperty("PageSize", 4096);
@@ -60,7 +61,7 @@ public class BuildTree
         RandomAccessFile randomFile = null;
 
         System.out.println("build tree:");
-        randomFile = new RandomAccessFile(fileName, "r");
+        randomFile = new RandomAccessFile(dataFileName, "r");
 
         byte[] buffer = new byte[BUFFER_SIZE];
 
@@ -127,12 +128,12 @@ public class BuildTree
     }
 
 
-    public static ISpatialIndex getTree(String filename)
+    public static ISpatialIndex getTree(String indexFileName)
     {
         // Create a disk based storage manager.
         PropertySet ps1 = new PropertySet();
 
-        ps1.setProperty("FileName", filename);
+        ps1.setProperty("FileName", indexFileName);
         // .idx and .dat extensions will be added.
 
         IStorageManager diskfile1 = null;
@@ -223,16 +224,35 @@ public class BuildTree
     }
 
 
+    /**
+     * 从R树索引中读取记录的位置（行开始位置），然后读取一行返回
+     * @param indexFilename R树索引名称
+     * @param dataFilename 原始文件名称
+     * @param point 索引点
+     * @return 索引对应的一行原始数据
+     */
     public static String getData(String indexFilename,String dataFilename, Point point)
     {
+        //先查看是否索引已经建立，如果没有，则需要先建立
+        File indexFile = new File(indexFilename + ".idx");
+        File dataFile = new File(indexFilename + ".dat");
+        if(!indexFile.exists() || !dataFile.exists())
+        {
+            try
+            {
+                BuildTree.buildTree(dataFilename,indexFilename);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        //读取索引
+        ISpatialIndex tree = BuildTree.getTree(indexFilename);
 
-            ISpatialIndex tree = BuildTree.getTree(indexFilename);
+        MyVisitor vis = new MyVisitor(dataFilename);//新建一个遍历容器
+        tree.intersectionQuery(point,vis);
 
-
-            MyVisitor vis = new MyVisitor(dataFilename);
-            tree.intersectionQuery(point,vis);
-
-            return vis.getReadData();
+        return vis.getReadData();
 
     }
 
@@ -242,7 +262,7 @@ public class BuildTree
     {
         try
         {
-            BuildTree.buildTree("data.csv");
+            BuildTree.buildTree("data.csv","tree");
 
             ISpatialIndex tree = BuildTree.getTree("tree");
             double[] data1 = {1417401382,71.12293,41.96888};
@@ -270,8 +290,8 @@ public class BuildTree
 
 class MyVisitor implements IVisitor
 {
-    private String filename;
-    private String readData;
+    private String filename;//原始文件名
+    private String readData;//读取的一行数据
 
     public MyVisitor(String filename)
     {
