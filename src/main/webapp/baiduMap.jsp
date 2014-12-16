@@ -1,9 +1,5 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<%@ page import="java.io.BufferedReader" %>
-<%@ page import="java.io.BufferedWriter" %>
-<%@ page import="java.io.FileReader" %>
-<%@ page import="java.io.FileWriter" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -42,11 +38,10 @@
 <body>
 <!--百度地图容器-->
 <div style="width:650px;height:665px;border:#ccc solid 1px;float:left;" id="dituContent"></div>
-<div style="width:655px;height:655px;border:#ccc solid 1px;float:right;padding:5px 20px;" id="myContent">
+<div style="width:555px;height:655px;border:#ccc solid 1px;float:right;padding:5px 20px;" id="myContent">
 
     <span style="width:300px; height:10px; border:#000 solid 2px; padding:5px 20px;" id="myLocation"></span>
 
-    <p style="color:#dd0000"> ！！！</p>
 </div>
 
 <script type="text/javascript">
@@ -62,7 +57,7 @@
     function createMap() {
         var map = new BMap.Map("dituContent");//在百度地图容器中创建一个地图
         var point = new BMap.Point(71.12293, 41.96888);//定义一个中心点坐标
-        map.centerAndZoom(point, 5);//设定地图的中心点和坐标并将地图显示在地图容器中
+        map.centerAndZoom(point, 6);//设定地图的中心点和坐标并将地图显示在地图容器中
 
         function showInfo(e) {
             alert(e.point.lng + ", " + e.point.lat);
@@ -99,17 +94,17 @@
 
 
     //标注点数组
-    var markerArr = [
-        {title: "1", content: "第1点", point: "119.972599|38.943134", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
-        ,
-        {title: "2", content: "第2点", point: "122.980557|34.62405", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
-        ,
-        {title: "3", content: "第3点", point: "123.974011|28.744675", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
-        ,
-        {title: "4", content: "第4点", point: "125.069719|19.156204", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
-        ,
-        {title: "5", content: "第5点", point: "115.069719|19.156204", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
-    ];
+//    var markerArr = [
+//        {title: "1", content: "第1点", point: "119.972599|38.943134", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
+//        ,
+//        {title: "2", content: "第2点", point: "122.980557|34.62405", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
+//        ,
+//        {title: "3", content: "第3点", point: "123.974011|28.744675", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
+//        ,
+//        {title: "4", content: "第4点", point: "125.069719|19.156204", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
+//        ,
+//        {title: "5", content: "第5点", point: "115.069719|19.156204", isOpen: 0, icon: {w: 23, h: 25, l: 46, t: 21, x: 9, lb: 12}}
+//    ];
     //创建marker
     function addMarker() {
         var marker = new BMap.Marker(new BMap.Point(71.12293, 41.96888));
@@ -131,14 +126,16 @@
         marker = new BMap.Marker(new BMap.Point(71.95589, 41.82858));
         marker.addEventListener("click", function (ee)
         {
-            alert(ee.point.lng + "," + ee.point.lat);
+            $("#myLocation").html("我的位置：" + "(" + ee.point.lng + "," + ee.point.lat + ")");
+            $('#myContent').append("<p style='color:#dd0000'>" + ee.point.lng + "/" + ee.point.lat + "</p>");
             doRequestUsingGET(71.95589, 41.82858);
         });
         map.addOverlay(marker);
         marker = new BMap.Marker(new BMap.Point(71.89159, 40.68332));
         marker.addEventListener("click", function (ee)
         {
-            alert(ee.point.lng + "," + ee.point.lat);
+            $("#myLocation").html("我的位置：" + "(" + ee.point.lng + "," + ee.point.lat + ")");
+            $('#myContent').append("<p style='color:#dd0000'>" + ee.point.lng + "/" + ee.point.lat + "</p>");
             doRequestUsingGET(71.89159, 40.68332);
         });
         map.addOverlay(marker);
@@ -237,7 +234,7 @@
         {
             if(xmlHttp.status==200)
             {
-                alert(xmlHttp.responseText);
+                //alert(xmlHttp.responseText);
                 $('#myContent').append("<p style='color:#dd0000'>" + xmlHttp.responseText + "</p>");
             }
         }
